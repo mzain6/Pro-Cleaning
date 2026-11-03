@@ -17,6 +17,24 @@
     />
     <meta property="og:type" content="website" />
 
+    <!-- First visit this session? Paint navy straight away so there's no white flash
+         before the React splash screen mounts. Keep in sync with src/utils/boot.js -->
+    <style>
+      html.splash-pending,
+      html.splash-pending body {
+        background: #0a1a33;
+      }
+    </style>
+    <script>
+      try {
+        if (/[?&]splash\b/.test(location.search) || !sessionStorage.getItem("pc-splash-seen")) {
+          document.documentElement.classList.add("splash-pending");
+        }
+      } catch (e) {
+        document.documentElement.classList.add("splash-pending");
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

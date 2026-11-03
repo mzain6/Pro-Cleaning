@@ -124,7 +124,7 @@ function ServiceGrid() {
             ))}
           </div>
 
-          <motion.div layout className="grid grid--2">
+          <div className="grid grid--2">
             <AnimatePresence mode="popLayout">
               {list.map((s) => (
                 <motion.article
@@ -155,7 +155,7 @@ function ServiceGrid() {
                 </motion.article>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </LayoutGroup>
       </div>
     </section>

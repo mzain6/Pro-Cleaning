@@ -21,7 +21,19 @@ import {
   Stars,
   Wave,
 } from "../components/ui.jsx";
-import { Counter, Item, Reveal, SplitText, Stagger, ease, popIn, slideLeft, slideRight } from "../components/motion.jsx";
+import {
+  Counter,
+  Float,
+  Item,
+  Reveal,
+  SplitText,
+  Spin,
+  Stagger,
+  ease,
+  popIn,
+  slideLeft,
+  slideRight,
+} from "../components/motion.jsx";
 import { process, quickQuotes, reasons, reviews, services, site } from "../data/content.js";
 
 /* ------------------------------------------------------------------ HERO */
@@ -35,31 +47,13 @@ function Hero() {
   return (
     <section className="hero">
       <div className="hero__bg" aria-hidden="true">
-        <motion.span
-          className="blob blob--gold"
-          animate={{ x: [0, 60, 0], y: [0, 30, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.span
-          className="blob blob--teal"
-          animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
-          transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <Float className="blob blob--gold" x={60} y={30} duration={14} />
+        <Float className="blob blob--teal" x={-50} y={-30} duration={17} />
         <span className="grid-pattern" />
       </div>
 
       <div className="container hero__inner">
         <div className="hero__copy">
-          <motion.span
-            className="hero__badge"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease }}
-          >
-            <Stars size={15} />
-            <b>{site.rating.toFixed(1)}</b> · {site.reviewCount} Google reviews
-          </motion.span>
-
           <SplitText
             as="h1"
             className="h1 hero__title"
@@ -114,22 +108,10 @@ function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.4, ease }}
         >
-          <motion.span
-            className="ring ring--1"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.span
-            className="ring ring--2"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          />
+          <Spin className="ring ring--1" duration={45} />
+          <Spin className="ring ring--2" duration={60} reverse />
 
-          <motion.div
-            className="hero__card"
-            animate={{ y: [0, -14, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          >
+          <Float className="hero__card" y={-14} duration={6}>
             <LogoMark size={132} animated />
             <strong>Pro-Cleaning</strong>
             <span>&amp; Handyman Services</span>
@@ -137,22 +119,20 @@ function Hero() {
               <Stars size={16} />
               <small>{site.rating.toFixed(1)} on Google</small>
             </div>
-          </motion.div>
+          </Float>
 
           {chips.map(({ icon: Icon, label, cls, dur }, i) => (
             <motion.div
               key={label}
-              className={`chip ${cls}`}
+              className={`chip-slot ${cls}`}
               initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1, y: [0, -10, 0] }}
-              transition={{
-                opacity: { delay: 1 + i * 0.2, duration: 0.5 },
-                scale: { delay: 1 + i * 0.2, type: "spring", stiffness: 200, damping: 14 },
-                y: { delay: 1.5 + i * 0.2, duration: dur, repeat: Infinity, ease: "easeInOut" },
-              }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1 + i * 0.2, type: "spring", stiffness: 200, damping: 14 }}
             >
-              <Icon size={18} />
-              {label}
+              <Float className="chip" y={-10} duration={dur} delay={0.4 * i}>
+                <Icon size={18} />
+                {label}
+              </Float>
             </motion.div>
           ))}
         </motion.div>
@@ -414,7 +394,7 @@ function Areas() {
       <div className="marquee" aria-hidden="true">
         <motion.div
           className="marquee__track"
-          animate={{ x: ["0%", "-50%"] }}
+          animate={{ transform: ["translateX(0%)", "translateX(-50%)"] }}
           transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
         >
           {loop.map((a, i) => (

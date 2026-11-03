@@ -1,5 +1,12 @@
-import { Fragment, useEffect, useRef, useState } from "react";
-import { motion, animate, useInView, useReducedMotion } from "framer-motion";
+import { Fragment, useEffect, useRef } from "react";
+import {
+  motion,
+  animate,
+  useInView,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "framer-motion";
 
 export const ease = [0.22, 1, 0.36, 1];
 
@@ -109,27 +116,67 @@ export function SplitText({ text, className = "", delay = 0, as = "h1", highligh
   );
 }
 
-/** Number that counts up the first time it scrolls into view. */
+/**
+ * Number that counts up the first time it scrolls into view.
+ * Driven by a motion value, so the text updates without re-rendering React.
+ */
 export function Counter({ to, decimals = 0, suffix = "", duration = 1.6 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const reduce = useReducedMotion();
-  const [val, setVal] = useState(reduce ? to : 0);
+  const value = useMotionValue(reduce ? to : 0);
+  const text = useTransform(value, (v) => v.toFixed(decimals) + suffix);
 
   useEffect(() => {
-    if (!inView) return;
     if (reduce) {
-      setVal(to);
+      value.set(to);
       return;
     }
-    const controls = animate(0, to, { duration, ease: "easeOut", onUpdate: setVal });
+    if (!inView) return;
+    const controls = animate(value, to, { duration, ease: "easeOut" });
     return () => controls.stop();
-  }, [inView, to, duration, reduce]);
+  }, [inView, to, duration, reduce, value]);
 
+  return <motion.span ref={ref}>{text}</motion.span>;
+}
+
+/* ----------------------------------------------------------------------------
+   Ambient loops.
+   These animate the CSS `transform` property as a single string, which Motion
+   hands to the browser's Web Animations API — so they run on the GPU
+   compositor thread and stay smooth even when the main thread is busy.
+---------------------------------------------------------------------------- */
+
+/** Gently drifts/floats its content. Use x/y for the travel distance in px. */
+export function Float({ children, className = "", x = 0, y = -12, duration = 6, delay = 0 }) {
   return (
-    <span ref={ref}>
-      {val.toFixed(decimals)}
-      {suffix}
-    </span>
+    <motion.div
+      className={className}
+      animate={{
+        transform: [
+          "translate(0px, 0px)",
+          `translate(${x}px, ${y}px)`,
+          "translate(0px, 0px)",
+        ],
+      }}
+      transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Endless rotation. */
+export function Spin({ className = "", duration = 40, reverse = false }) {
+  return (
+    <motion.span
+      className={className}
+      animate={{
+        transform: reverse
+          ? ["rotate(360deg)", "rotate(0deg)"]
+          : ["rotate(0deg)", "rotate(360deg)"],
+      }}
+      transition={{ duration, repeat: Infinity, ease: "linear" }}
+    />
   );
 }

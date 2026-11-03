@@ -2,7 +2,17 @@ import { motion } from "framer-motion";
 import { Heart, MapPin, Sparkles, Wrench } from "lucide-react";
 import { LogoMark } from "../components/Logo.jsx";
 import { CtaBand, PageHeader, SectionHeading, Stars } from "../components/ui.jsx";
-import { Counter, Item, Reveal, Stagger, popIn, slideLeft, slideRight } from "../components/motion.jsx";
+import {
+  Counter,
+  Float,
+  Item,
+  Reveal,
+  Spin,
+  Stagger,
+  popIn,
+  slideLeft,
+  slideRight,
+} from "../components/motion.jsx";
 import { process, services, site, values } from "../data/content.js";
 
 function Story() {
@@ -11,34 +21,22 @@ function Story() {
       <div className="container split">
         <Reveal variants={slideLeft} className="split__visual">
           <div className="about-art">
-            <motion.span
-              className="about-art__ring"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div
-              className="about-art__card"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <Spin className="about-art__ring" duration={50} />
+            <Float className="about-art__card" y={-10} duration={6}>
               <LogoMark size={110} animated />
               <strong>Pro-Cleaning</strong>
               <span>&amp; Handyman Services LLC</span>
-            </motion.div>
-            <motion.span
-              className="about-art__chip about-art__chip--a"
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Wrench size={16} /> Repairs
-            </motion.span>
-            <motion.span
-              className="about-art__chip about-art__chip--b"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Sparkles size={16} /> Cleaning
-            </motion.span>
+            </Float>
+            <div className="about-art__slot about-art__slot--a">
+              <Float className="about-art__chip" y={-8} duration={5}>
+                <Wrench size={16} /> Repairs
+              </Float>
+            </div>
+            <div className="about-art__slot about-art__slot--b">
+              <Float className="about-art__chip" y={8} duration={6}>
+                <Sparkles size={16} /> Cleaning
+              </Float>
+            </div>
           </div>
         </Reveal>
 

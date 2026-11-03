@@ -30,7 +30,11 @@ export default function App() {
       <ScrollProgress />
       <Navbar />
       <main>
-        <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
+        {/* "instant" matters: the page has CSS smooth-scroll, which would otherwise animate this jump */}
+        <AnimatePresence
+          mode="wait"
+          onExitComplete={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
+        >
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageTransition><Home /></PageTransition>} />
             <Route

@@ -36,7 +36,7 @@ export default function Navbar() {
     >
       <div className="container nav__inner">
         <Link to="/" className="nav__brand" aria-label="Pro-Cleaning & Handyman Services — home">
-          <Logo light={!solid} size={scrolled ? 40 : 46} />
+          <Logo light={!solid} size={44} />
         </Link>
 
         <nav className="nav__links" aria-label="Main">
@@ -94,10 +94,10 @@ export default function Navbar() {
         {open && (
           <motion.div
             className="drawer"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "calc(100dvh - 72px)" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.35, ease }}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25, ease }}
           >
             <motion.ul
               className="drawer__list"

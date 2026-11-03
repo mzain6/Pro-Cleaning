@@ -44,15 +44,18 @@ export function usePageTitle(title) {
   }, [title]);
 }
 
-/** Wraps a page so it fades/slides in and out between routes. */
+/**
+ * Wraps a page so it cross-fades between routes.
+ * Opacity only on purpose: transforming a whole page forces the browser to
+ * build one enormous GPU layer, which is what makes page changes stutter.
+ */
 export function PageTransition({ children, title }) {
   usePageTitle(title);
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.3, ease: "easeOut" } }}
+      exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
     >
       {children}
     </motion.div>

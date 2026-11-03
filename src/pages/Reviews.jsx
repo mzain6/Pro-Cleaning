@@ -65,10 +65,7 @@ function ReviewCards() {
         <Stagger className="reviews" stagger={0.14}>
           {reviews.map((r) => (
             <Item key={r.name}>
-              <motion.article
-                className="review"
-                whileHover={{ y: -6, boxShadow: "0 24px 50px -18px rgba(10,26,51,0.28)" }}
-              >
+              <motion.article className="review" whileHover={{ y: -6 }}>
                 <Quote className="review__q" size={44} />
                 <header className="review__head">
                   <span className="avatar">{r.name.charAt(0)}</span>

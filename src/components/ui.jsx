@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Star, Phone, ArrowRight } from "lucide-react";
-import { Reveal, SplitText, ease } from "./motion.jsx";
+import { Float, Reveal, SplitText, ease } from "./motion.jsx";
 import { site } from "../data/content.js";
 
 export function Stars({ size = 18, count = 5 }) {
@@ -38,16 +38,8 @@ export function PageHeader({ eyebrow, title, text, crumb }) {
   return (
     <section className="page-header">
       <div className="page-header__bg" aria-hidden="true">
-        <motion.span
-          className="blob blob--gold"
-          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.span
-          className="blob blob--teal"
-          animate={{ x: [0, -30, 0], y: [0, -25, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <Float className="blob blob--gold" x={40} y={20} duration={14} />
+        <Float className="blob blob--teal" x={-30} y={-25} duration={16} />
       </div>
       <div className="container page-header__inner">
         <motion.nav
@@ -130,7 +122,10 @@ export function CtaBand({ title = "Ready to fix it, fresh it, finish it?", text 
           <motion.span
             className="cta-band__glow"
             aria-hidden="true"
-            animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.8, 0.5] }}
+            animate={{
+              transform: ["scale(1)", "scale(1.25)", "scale(1)"],
+              opacity: [0.5, 0.85, 0.5],
+            }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="cta-band__copy">
