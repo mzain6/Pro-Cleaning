@@ -8,51 +8,68 @@ import {
   useTransform,
 } from "framer-motion";
 
+/* Smoothness rule: animate opacity and the CSS `transform` property only, and write
+   transforms as a string ("translateY(18px)") rather than using x / y / scale props.
+   Framer hands a `transform` string to the browser's Web Animations API, so the
+   animation runs on the compositor thread and keeps going at full frame rate even
+   while React is rendering or the page is busy. The x / y / scale props are driven
+   from JavaScript on the main thread instead, which is what makes entrances stutter. */
+
 export const ease = [0.22, 1, 0.36, 1];
 
+const up = (y) => `translateY(${y}px)`;
+const side = (x) => `translateX(${x}px)`;
+
 export const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease } },
+  hidden: { opacity: 0, transform: up(18) },
+  show: { opacity: 1, transform: up(0), transition: { duration: 0.6, ease } },
 };
 
 export const fadeIn = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.6, ease } },
+  show: { opacity: 1, transition: { duration: 0.5, ease } },
 };
 
 export const slideLeft = {
-  hidden: { opacity: 0, x: -40 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.7, ease } },
+  hidden: { opacity: 0, transform: side(-24) },
+  show: { opacity: 1, transform: side(0), transition: { duration: 0.65, ease } },
 };
 
 export const slideRight = {
-  hidden: { opacity: 0, x: 40 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.7, ease } },
+  hidden: { opacity: 0, transform: side(24) },
+  show: { opacity: 1, transform: side(0), transition: { duration: 0.65, ease } },
 };
 
-export const popIn = {
-  hidden: { opacity: 0, scale: 0.85 },
-  show: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 160, damping: 16 } },
-};
+/** Props for a one-off entrance on mount: <motion.p {...rise(0.4)}>. */
+export const rise = (delay = 0, y = 16, duration = 0.65) => ({
+  initial: { opacity: 0, transform: up(y) },
+  animate: { opacity: 1, transform: up(0) },
+  transition: { duration, delay, ease },
+});
 
-const container = (stagger = 0.1, delay = 0) => ({
+const container = (stagger = 0.08, delay = 0) => ({
   hidden: {},
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 });
 
-const viewport = { once: true, margin: "-70px" };
+const viewport = { once: true, margin: "-60px" };
 
-/** Fades + lifts its children into view as they scroll on screen. */
+/** Adds a delay to a variants object's "show" transition (a prop-level delay would be overridden by it). */
+const withDelay = (variants, delay) =>
+  delay
+    ? { ...variants, show: { ...variants.show, transition: { ...variants.show.transition, delay } } }
+    : variants;
+
+/** Fades and lifts its children into view as they scroll on screen. */
 export function Reveal({ children, variants = fadeUp, delay = 0, className = "", as = "div" }) {
   const Tag = motion[as] || motion.div;
   return (
     <Tag
       className={className}
-      variants={variants}
+      variants={withDelay(variants, delay)}
       initial="hidden"
       whileInView="show"
       viewport={viewport}
-      transition={delay ? { delay } : undefined}
     >
       {children}
     </Tag>
@@ -60,7 +77,7 @@ export function Reveal({ children, variants = fadeUp, delay = 0, className = "",
 }
 
 /** Parent that staggers any <Item> children when scrolled into view. */
-export function Stagger({ children, className = "", stagger = 0.1, delay = 0, as = "div" }) {
+export function Stagger({ children, className = "", stagger = 0.08, delay = 0, as = "div" }) {
   const Tag = motion[as] || motion.div;
   return (
     <Tag
@@ -84,29 +101,46 @@ export function Item({ children, className = "", variants = fadeUp, as = "div", 
   );
 }
 
-/** Animated headline: each word rises into place. */
-export function SplitText({ text, className = "", delay = 0, as = "h1", highlight = 0 }) {
-  const Tag = motion[as] || motion.h1;
-  const words = text.split(" ");
+/** "A clean home makes you say *whoa.*" -> words, with the starred ones set in italic. */
+function parseWords(text) {
+  let em = false;
+  return text.split(" ").map((token) => {
+    if (token.startsWith("*")) em = true;
+    const word = { text: token.replace(/\*/g, ""), em };
+    if (token.endsWith("*")) em = false;
+    return word;
+  });
+}
+
+/**
+ * Headline whose words rise out of a mask. On a page's first screen it plays on
+ * mount; further down the page pass inView so it plays when scrolled to.
+ */
+export function Headline({ text, as = "h2", className = "", delay = 0, inView = false }) {
+  const Tag = motion[as] || motion.h2;
+  const words = parseWords(text);
+  const trigger = inView
+    ? { whileInView: "show", viewport: { once: true, margin: "-60px" } }
+    : { animate: "show" };
   return (
     <Tag
       className={className}
-      variants={container(0.07, delay)}
+      variants={container(0.055, delay)}
       initial="hidden"
-      animate="show"
-      aria-label={text}
+      aria-label={text.replace(/\*/g, "")}
+      {...trigger}
     >
       {words.map((w, i) => (
         <Fragment key={i}>
-          <span className="split__mask" aria-hidden="true">
+          <span className="mask" aria-hidden="true">
             <motion.span
-              className={`split__word ${i >= words.length - highlight ? "split__hl" : ""}`}
+              className={w.em ? "word em" : "word"}
               variants={{
-                hidden: { y: "110%", rotate: 4 },
-                show: { y: "0%", rotate: 0, transition: { duration: 0.7, ease } },
+                hidden: { transform: "translateY(105%)" },
+                show: { transform: "translateY(0%)", transition: { duration: 0.7, ease } },
               }}
             >
-              {w}
+              {w.text}
             </motion.span>
           </span>
           {i < words.length - 1 && " "}
@@ -116,16 +150,13 @@ export function SplitText({ text, className = "", delay = 0, as = "h1", highligh
   );
 }
 
-/**
- * Number that counts up the first time it scrolls into view.
- * Driven by a motion value, so the text updates without re-rendering React.
- */
-export function Counter({ to, decimals = 0, suffix = "", duration = 1.6 }) {
+/** Number that counts up the first time it scrolls into view. */
+export function Counter({ to, decimals = 0, duration = 1.4 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const reduce = useReducedMotion();
   const value = useMotionValue(reduce ? to : 0);
-  const text = useTransform(value, (v) => v.toFixed(decimals) + suffix);
+  const text = useTransform(value, (v) => v.toFixed(decimals));
 
   useEffect(() => {
     if (reduce) {
@@ -138,45 +169,4 @@ export function Counter({ to, decimals = 0, suffix = "", duration = 1.6 }) {
   }, [inView, to, duration, reduce, value]);
 
   return <motion.span ref={ref}>{text}</motion.span>;
-}
-
-/* ----------------------------------------------------------------------------
-   Ambient loops.
-   These animate the CSS `transform` property as a single string, which Motion
-   hands to the browser's Web Animations API — so they run on the GPU
-   compositor thread and stay smooth even when the main thread is busy.
----------------------------------------------------------------------------- */
-
-/** Gently drifts/floats its content. Use x/y for the travel distance in px. */
-export function Float({ children, className = "", x = 0, y = -12, duration = 6, delay = 0 }) {
-  return (
-    <motion.div
-      className={className}
-      animate={{
-        transform: [
-          "translate(0px, 0px)",
-          `translate(${x}px, ${y}px)`,
-          "translate(0px, 0px)",
-        ],
-      }}
-      transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/** Endless rotation. */
-export function Spin({ className = "", duration = 40, reverse = false }) {
-  return (
-    <motion.span
-      className={className}
-      animate={{
-        transform: reverse
-          ? ["rotate(360deg)", "rotate(0deg)"]
-          : ["rotate(0deg)", "rotate(360deg)"],
-      }}
-      transition={{ duration, repeat: Infinity, ease: "linear" }}
-    />
-  );
 }

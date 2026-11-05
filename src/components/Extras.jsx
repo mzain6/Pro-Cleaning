@@ -1,46 +1,15 @@
-import { useEffect } from "react";
-import { motion, useScroll, useSpring, useMotionValueEvent } from "framer-motion";
-import { useState } from "react";
-import { Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { MessageSquare, Phone } from "lucide-react";
+import { ease } from "./motion.jsx";
 import { site } from "../data/content.js";
-
-/** Thin gold bar across the top that fills as you scroll. */
-export function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24, restDelta: 0.001 });
-  return <motion.div className="progress" style={{ scaleX }} aria-hidden="true" />;
-}
-
-/** Sticky call button — mostly useful on phones. Appears after a little scrolling. */
-export function FloatingCall() {
-  const [show, setShow] = useState(false);
-  const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (y) => setShow(y > 320));
-
-  return (
-    <motion.a
-      href={site.phoneHref}
-      className="fab"
-      aria-label={`Call ${site.phone}`}
-      initial={false}
-      animate={show ? { scale: 1, opacity: 1, y: 0 } : { scale: 0.6, opacity: 0, y: 30 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      style={{ pointerEvents: show ? "auto" : "none" }}
-      whileHover={{ scale: 1.08 }}
-      whileTap={{ scale: 0.92 }}
-    >
-      <span className="fab__pulse" aria-hidden="true" />
-      <Phone size={24} />
-    </motion.a>
-  );
-}
 
 /** Sets the document title for each page. */
 export function usePageTitle(title) {
   useEffect(() => {
     document.title = title
-      ? `${title} | Pro-Cleaning & Handyman Services LLC`
-      : "Pro-Cleaning & Handyman Services LLC | Lancaster, PA";
+      ? `${title} | Whoa Cleaning Services LLC`
+      : "Whoa Cleaning Services LLC | House Cleaning";
   }, [title]);
 }
 
@@ -58,6 +27,30 @@ export function PageTransition({ children, title }) {
       exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
     >
       {children}
+    </motion.div>
+  );
+}
+
+/** Phone-only call/text bar that slides up after a little scrolling. */
+export function MobileCallBar() {
+  const [show, setShow] = useState(false);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => setShow(y > 280));
+
+  return (
+    <motion.div
+      className="callbar"
+      initial={false}
+      animate={{ transform: show ? "translateY(0%)" : "translateY(110%)" }}
+      transition={{ duration: 0.35, ease }}
+      aria-hidden={!show}
+    >
+      <a href={site.phoneHref} className="btn btn--gold" tabIndex={show ? 0 : -1}>
+        <Phone size={18} /> Call
+      </a>
+      <a href={site.smsHref} className="btn btn--line" tabIndex={show ? 0 : -1}>
+        <MessageSquare size={18} /> Text
+      </a>
     </motion.div>
   );
 }

@@ -1,48 +1,30 @@
-import {
-  Hammer,
-  Wrench,
-  Sparkles,
-  Droplets,
-  PaintRoller,
-  SprayCan,
-  Zap,
-  MessageCircle,
-  BadgeCheck,
-  Handshake,
-  Smile,
-  ClipboardList,
-  Phone,
-  Brush,
-} from "lucide-react";
-
 /* ----------------------------------------------------------------------------
-   Business details — taken from the Google Maps profile.
-   Edit here and every page updates.
+   Business details and copy for the whole site. Edit here and every page updates.
+
+   Source: the Google Maps profile for Whoa Cleaning Services LLC.
+   NOT on the profile, so deliberately left out of the site until you supply them:
+     - street address / service area      - weekly opening hours
+     - prices                              - the owner's own story and photos
+   The service descriptions and "usually included" lists are draft copy written
+   from what customers mention in their reviews. Check them against what you
+   actually offer.
 ---------------------------------------------------------------------------- */
-const street = "407 Laurel St";
-const cityLine = "Lancaster, PA 17603";
-const fullAddress = `${street}, ${cityLine}`;
+
+const mapsQuery = encodeURIComponent("Whoa Cleaning Services LLC");
 
 export const site = {
-  name: "Pro-Cleaning & Handyman Services LLC",
-  phone: "(717) 869-9924",
-  phoneHref: "tel:+17178699924",
-  smsNumber: "+17178699924",
-  street,
-  cityLine,
-  fullAddress,
-  // Google only lists "Closes 8 pm" — replace with the full weekly schedule when known.
-  hours: "Open until 8 PM",
-  rating: 5.0,
-  reviewCount: 16,
-  areas: ["Lancaster", "York", "Lititz", "Ephrata", "Millersville", "Columbia"],
-  mapsUrl:
-    "https://www.google.com/maps/search/?api=1&query=" +
-    encodeURIComponent(`Pro-Cleaning & Handyman Services LLC ${fullAddress}`),
-  directionsUrl:
-    "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(fullAddress),
-  mapEmbedUrl: `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`,
-  // Optional: paste a Formspree / Getform endpoint here to have the quote form deliver by email.
+  name: "Whoa Cleaning Services LLC",
+  phone: "(484) 262-9031",
+  phoneHref: "tel:+14842629031",
+  smsHref: "sms:+14842629031",
+  // Google only shows today's closing time. Replace with the full schedule when known.
+  hours: "Closes at 6 PM",
+  rating: 4.7,
+  reviewCount: 27,
+  identity: ["Black-owned", "Women-owned"],
+  profileUrl: `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`,
+  // Optional: paste a Formspree / Getform endpoint to have the quote form deliver by email.
+  // Left empty, the form prepares a text message the customer can send in one tap.
   formEndpoint: "",
 };
 
@@ -54,200 +36,138 @@ export const navLinks = [
   { to: "/contact", label: "Contact" },
 ];
 
-/* ----------------------------------------------------------------------------
-   Services
----------------------------------------------------------------------------- */
-export const serviceFilters = ["All", "Interior", "Exterior", "Cleaning", "Remodeling"];
-
 export const services = [
   {
-    id: "drywall",
-    icon: PaintRoller,
-    category: "Interior",
-    title: "Drywall Repair & Installation",
-    blurb:
-      "Damaged walls and ceilings repaired or newly installed, with texture matching and a smooth finish that's ready for paint.",
-    points: [
-      "Wall cracks & seam stress",
-      "Water-damaged sheetrock",
-      "Door-knob punctures & dents",
-      "Full panel installation",
+    id: "standard",
+    title: "Standard cleaning",
+    short: "The regular reset for the whole house.",
+    body: "A dependable clean for the rooms you use every day. Surfaces get dusted and wiped down, kitchens and bathrooms get scrubbed, and the floors are vacuumed and mopped.",
+    includes: [
+      "Dusting and wiping down surfaces",
+      "Kitchen counters, sinks and appliance fronts",
+      "Bathrooms: toilets, tubs, showers and mirrors",
+      "Vacuuming and mopping floors",
     ],
+    goodFor: "Busy weeks, guests on the way, or keeping a routine going.",
   },
   {
-    id: "ceiling",
-    icon: Droplets,
-    category: "Interior",
-    title: "Ceiling & Leak Repair",
-    blurb:
-      "Ceiling stains and leak damage dealt with quickly, then restored so the room looks like nothing ever happened.",
-    points: ["Ceiling stain repair", "Leak-damage restoration", "Patch, prime & finish"],
+    id: "deep",
+    title: "Deep cleaning",
+    short: "A fresh start for a house that needs one.",
+    body: "For a home that has gone a while without a proper clean. We go past the surface into corners, edges and the buildup a regular clean leaves behind.",
+    includes: [
+      "Baseboards, ledges and corners",
+      "Built-up grime in kitchens and bathrooms",
+      "Bedrooms and spaces that turned into storage",
+      "Floors, edge to edge",
+    ],
+    goodFor: "First-time cleans, seasonal resets and homes that have been neglected.",
   },
   {
-    id: "handyman",
-    icon: Wrench,
-    category: "Interior",
-    title: "General Handyman Repairs",
-    blurb:
-      "The small-to-medium jobs that pile up around a home — handled by one reliable crew instead of five different calls.",
-    points: ["Interior home repairs", "Fixes & touch-ups", "Last-minute jobs welcome"],
+    id: "rental",
+    title: "Rental and move-out cleaning",
+    short: "A unit that's ready for the next tenant.",
+    body: "Landlords and property owners bring us in between tenants. Tell us the move-out date and the size of the place and we'll plan around it.",
+    includes: [
+      "Kitchens and bathrooms",
+      "Floors and baseboards",
+      "Closets, cabinets and storage spaces",
+      "Doors, switches and fixtures wiped down",
+    ],
+    goodFor: "Landlords, property managers and anyone handing back keys.",
   },
   {
-    id: "remodeling",
-    icon: Hammer,
-    category: "Remodeling",
-    title: "Remodeling Projects",
-    blurb:
-      "Kitchen, bathroom and interior refreshes planned and finished with care — from framing to a paint-ready surface.",
-    points: ["Kitchen updates", "Bathroom updates", "New wall framing"],
+    id: "rugs",
+    title: "Area rug cleaning",
+    short: "Fresher rugs for living rooms and bedrooms.",
+    body: "Rugs collect dust, spills and foot traffic. Tell us the size, the material and what's on it, and we'll tell you what we can do.",
+    includes: [
+      "Living room, bedroom and hallway rugs",
+      "Stains and heavy-traffic areas: tell us what happened",
+      "Send a photo and the size for a quicker answer",
+    ],
+    goodFor: "Rugs that look tired, smell stale or took a spill.",
   },
   {
-    id: "pressure",
-    icon: SprayCan,
-    category: "Exterior",
-    title: "Pressure Washing",
-    blurb:
-      "Bring driveways, siding, patios and walkways back to life and boost your curb appeal in a single visit.",
-    points: ["Driveways & walkways", "Siding & exteriors", "Patios & decks"],
-  },
-  {
-    id: "cleaning",
-    icon: Sparkles,
-    category: "Cleaning",
-    title: "Professional Cleaning",
-    blurb:
-      "Detail-oriented cleaning that customers describe as \"amazing\" — and we always clean up after our own work too.",
-    points: ["Home cleaning", "Post-project clean-up", "Detail-focused results"],
+    id: "rooms",
+    title: "Room cleaning",
+    short: "Just the rooms that need attention.",
+    body: "You don't always need the whole house done. A bedroom that became a storage room, a kitchen before company, one space that needs work: tell us which rooms.",
+    includes: [
+      "Bedrooms and guest rooms",
+      "Kitchens",
+      "Bathrooms",
+      "Living and dining areas",
+    ],
+    goodFor: "Specific rooms that have been put off for too long.",
   },
 ];
 
-/* ----------------------------------------------------------------------------
-   Why choose us — each point comes straight from what customers say on Google.
----------------------------------------------------------------------------- */
-export const reasons = [
+export const steps = [
   {
-    icon: Zap,
-    title: "Prompt & Reliable",
-    text: "\"Timeliness\" is the #1 thing customers mention. We show up, and we get it done efficiently.",
+    title: "Call or text",
+    text: "Tell us what needs cleaning and roughly when. One customer reached out on a Sunday night and was booked for the same week.",
   },
   {
-    icon: MessageCircle,
-    title: "Clear Communication",
-    text: "You're kept updated on progress from the first call to the final walkthrough.",
+    title: "Pick a time",
+    text: "We confirm the day and when we'll arrive. Four reviews mention punctuality, so we treat showing up on time as part of the job.",
   },
   {
-    icon: BadgeCheck,
-    title: "Craftsmanship You Can See",
-    text: "Smooth, texture-matched finishes that look original — not like a repair.",
-  },
-  {
-    icon: Smile,
-    title: "We Clean Up After Ourselves",
-    text: "Every job ends with the space tidied up. Our name is Pro-Cleaning for a reason.",
+    title: "We clean, you look it over",
+    text: "You come home to a house that feels reset, with the corners done too.",
   },
 ];
 
-export const process = [
+/* Reviews are quoted as they appear on Google. A trailing "…" means Google
+   cut the text off there. Dates are left out on purpose ("4 years ago" goes stale). */
+export const reviews = [
   {
-    icon: Phone,
-    title: "Call or message us",
-    text: "Tell us what's going on — a quick description or a few photos is plenty.",
+    name: "Angel Harewood",
+    meta: "Google Local Guide",
+    pull: "My house was in a deep need for a fresh start and they provided it.",
+    text: "…made my bedrooms actually look like bedrooms and not junk rooms.",
   },
   {
-    icon: ClipboardList,
-    title: "Get a clear plan",
-    text: "We explain the scope of the work and what it will take before we begin.",
+    name: "Tara Moore",
+    meta: "Google review",
+    pull: "Whoa cleaning has been providing exceptional service in many capacities for me since 2021.",
+    text: "It began with cleaning to prepare for a new tenant at one of my properties, a deep cleaning for a 93 year old’s home I was POA for that then became …",
   },
   {
-    icon: Hammer,
-    title: "We do the work",
-    text: "Our team handles the repair, install or project with attention to detail.",
+    name: "Sharmaine Stevenson",
+    meta: "Google review",
+    pull: "Empress and the team did an AMAZING job!",
+    text: "I contacted them on Sunday night and they were able to fit me in for an appointment in the same week for a standard clean. …",
   },
-  {
-    icon: Brush,
-    title: "Clean & done",
-    text: "We tidy up and walk you through the result so you're happy before we leave.",
-  },
+];
+
+/* Topics Google highlights from the reviews (number = reviews that mention it).
+   The profile lists six more topics that aren't shown here. */
+export const reviewTopics = [
+  { label: "Attention to detail", count: 5 },
+  { label: "Punctuality", count: 4 },
+  { label: "Room cleaning", count: 2 },
+  { label: "Area rug cleaning", count: 2 },
 ];
 
 export const values = [
   {
-    icon: Handshake,
-    title: "Trust first",
-    text: "We treat every home like our own and every customer like a neighbor — because they are.",
+    title: "Show up when we say.",
+    text: "Customers bring up punctuality in four reviews. A cleaning appointment only works if you can plan your day around it.",
   },
   {
-    icon: Zap,
-    title: "Respect your time",
-    text: "Show up when we say, keep you in the loop, and finish efficiently.",
+    title: "Look at the corners.",
+    text: "Attention to detail is the topic reviewers mention most, in five reviews. It's the difference between tidy and clean.",
   },
   {
-    icon: BadgeCheck,
-    title: "Finish it properly",
-    text: "Smooth walls, matched textures, tidy job sites. The details are the job.",
+    title: "Treat every home like it matters.",
+    text: "A rental between tenants, a family house that needed a fresh start, a relative's home: the standard stays the same.",
   },
 ];
 
-/* ----------------------------------------------------------------------------
-   Reviews — quoted from the public Google reviews.
----------------------------------------------------------------------------- */
-export const reviews = [
-  {
-    name: "Jasmin Hernandez",
-    meta: "Local Guide · 8 reviews",
-    text: "I had a terrible leak in my bedroom that was coming from the roof of the apartment I rent. Elisandro and his team came in and had the work done within an efficient amount of time. He was great at keeping me updated on the progress…",
-    reply:
-      "Thank you so much for the wonderful review! We're thrilled to hear that Elisandro and the team were able to take care of your ceiling leak efficiently and leave you happy with the results.",
-  },
-  {
-    name: "Randy Graffa",
-    meta: "Google reviewer",
-    text: "Pro-Cleaning did a great job with the pressure washing and some additional remodeling projects. If looking for a handyman in Lancaster, PA, call these guys. Highly recommended.",
-    reply:
-      "Firstly, thank you for choosing us, and secondly, we are very grateful and happy to have achieved your satisfaction within the project for which you selected us. Thank you again, and you can count on us anytime.",
-  },
-  {
-    name: "Jessica Sload",
-    meta: "Google reviewer",
-    text: "I would recommend this company to anyone. Very professional and outstanding work I needed done at the last minute. Everything was done correctly and quickly for the job I needed done and he even cleaned everything up when he was done.",
-    reply: "Thank you very much for your words.",
-  },
-];
-
-export const quickQuotes = [
-  { text: "They were very prompt and professional and did an amazing job cleaning.", name: "Google reviewer" },
-  { text: "Thank you Elisandro for your excellent work.", name: "Google reviewer" },
-  { text: "Very professional and outstanding work I needed done at the last minute.", name: "Jessica Sload" },
-];
-
-// Topics Google highlights from the 16 reviews.
-export const reviewTopics = [
-  { label: "Timeliness", count: 4 },
-  { label: "Spectacular work", count: 2 },
-  { label: "Communication", count: 2 },
-  { label: "Work done", count: 2 },
-  { label: "Cleaning", count: 2 },
-];
-
-export const faqs = [
-  {
-    q: "Which areas do you serve?",
-    a: "We're based on Laurel St in Lancaster, PA and serve Lancaster, York, Lititz, Ephrata, Millersville and Columbia. Not sure if you're in range? Just give us a call.",
-  },
-  {
-    q: "How do I get a quote?",
-    a: "Call us at (717) 869-9924 or send a message through the contact page with a short description of the job. Photos help a lot.",
-  },
-  {
-    q: "Can you match my existing wall texture after a drywall repair?",
-    a: "Yes. Texture matching and a smooth, paint-ready finish are a core part of every drywall repair we do.",
-  },
-  {
-    q: "Do you take last-minute jobs?",
-    a: "Many of our customers reach out when something needs fixing right away. Call us and we'll do our best to fit you in.",
-  },
-  {
-    q: "Will you clean up after the job?",
-    a: "Always. Customers regularly mention that we leave the space spotless — it's part of how we work.",
-  },
+export const toTell = [
+  "Which service you're after, or what the problem is",
+  "Roughly how big the home is (bedrooms and bathrooms)",
+  "A date or time frame you have in mind",
+  "Anything we should know: pets, stairs, special surfaces",
 ];

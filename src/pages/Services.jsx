@@ -1,205 +1,153 @@
-import { useState } from "react";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { Check, ChevronDown, PaintRoller } from "lucide-react";
-import { CtaBand, LinkButton, PageHeader, SectionHeading } from "../components/ui.jsx";
-import { Item, Reveal, Stagger, ease, slideLeft, slideRight } from "../components/motion.jsx";
-import { faqs, serviceFilters, services } from "../data/content.js";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { CtaBand, LinkButton, PageHeader } from "../components/ui.jsx";
+import { Headline, Item, Reveal, Stagger, ease, rise } from "../components/motion.jsx";
+import { services } from "../data/content.js";
 
-const drywallItems = [
-  "Wall cracks",
-  "Water-damaged sheetrock",
-  "Door-knob punctures",
-  "Seam stress",
-  "Ceiling stains",
-  "Full panel installations",
+function Tick() {
+  return (
+    <svg className="tick" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" fill="currentColor" opacity=".16" />
+      <motion.path
+        d="M7 12.5l3.2 3.2L17 8.8"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.4, ease, delay: 0.15 }}
+      />
+    </svg>
+  );
+}
+
+function Picker() {
+  const { hash } = useLocation();
+  const fromHash = services.findIndex((s) => `#${s.id}` === hash);
+  const [active, setActive] = useState(Math.max(0, fromHash));
+  const tabs = useRef([]);
+
+  useEffect(() => {
+    if (fromHash >= 0) setActive(fromHash);
+  }, [fromHash]);
+
+  const s = services[active];
+
+  const onKeyDown = (e) => {
+    const move = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    if (!move) return;
+    e.preventDefault();
+    const next = (active + move + services.length) % services.length;
+    setActive(next);
+    tabs.current[next]?.focus();
+  };
+
+  return (
+    <section className="section picker-section">
+      <div className="container picker">
+        <div className="picker__tabs" role="tablist" aria-label="Cleaning services" onKeyDown={onKeyDown}>
+          {services.map((x, i) => (
+            <button
+              key={x.id}
+              ref={(el) => (tabs.current[i] = el)}
+              role="tab"
+              id={`tab-${x.id}`}
+              aria-selected={i === active}
+              aria-controls="picker-panel"
+              tabIndex={i === active ? 0 : -1}
+              className={`picker__tab ${i === active ? "is-active" : ""}`}
+              onClick={() => setActive(i)}
+            >
+              {i === active && (
+                <motion.span
+                  layoutId="picker-bar"
+                  className="picker__bar"
+                  style={{ borderRadius: 12 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 38 }}
+                />
+              )}
+              <span className="picker__num">0{i + 1}</span>
+              <span className="picker__name">{x.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="picker__panel" role="tabpanel" id="picker-panel" aria-labelledby={`tab-${s.id}`}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={s.id}
+              initial={{ opacity: 0, transform: "translateY(14px)" }}
+              animate={{ opacity: 1, transform: "translateY(0px)" }}
+              exit={{ opacity: 0, transform: "translateY(-8px)", transition: { duration: 0.15 } }}
+              transition={{ duration: 0.3, ease }}
+            >
+              <span className="picker__index">0{active + 1}</span>
+              <h2 className="display display--lg">{s.title}</h2>
+              <p className="lead">{s.body}</p>
+
+              <h3 className="picker__sub">Usually included</h3>
+              <ul className="ticks">
+                {s.includes.map((t, i) => (
+                  <motion.li
+                    key={t}
+                    {...rise(0.06 * i + 0.1, 0, 0.4)}
+                    initial={{ opacity: 0, transform: "translateX(-10px)" }}
+                    animate={{ opacity: 1, transform: "translateX(0px)" }}
+                  >
+                    <Tick />
+                    {t}
+                  </motion.li>
+                ))}
+              </ul>
+
+              <p className="picker__good">
+                <b>Good for:</b> {s.goodFor}
+              </p>
+              <LinkButton to={`/contact?service=${s.id}`} variant="gold">
+                Ask about this
+              </LinkButton>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const know = [
+  {
+    title: "Tell us about the home.",
+    text: "How many bedrooms and bathrooms, and roughly how big it is. It lets us plan the time and give you a straight answer.",
+  },
+  {
+    title: "Rugs: send a photo.",
+    text: "Text a photo with the size and what's on it. That's the quickest way to find out if we can help.",
+  },
+  {
+    title: "Landlords: give us the dates.",
+    text: "Tell us the move-out date and when the next tenant arrives so the clean fits the gap.",
+  },
 ];
 
-function DrywallSpotlight() {
+function GoodToKnow() {
   return (
-    <section className="section">
-      <div className="container spotlight">
-        <Reveal variants={slideLeft} className="spotlight__copy">
-          <span className="eyebrow">Our specialty</span>
-          <h2 className="h2">Drywall repair &amp; installation</h2>
-          <p className="lead">
-            Interior walls and ceilings need to stay smooth and structurally sound to protect
-            insulation, keep your home looking its best and support finished interior surfaces.
-            We repair damaged surfaces and install new wall framing and panels — with careful
-            texture matching and smooth finishes, ready for paint.
-          </p>
-          <ul className="checks">
-            {drywallItems.map((d, i) => (
-              <motion.li
-                key={d}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: 0.07 * i, duration: 0.45, ease }}
-              >
-                <span>
-                  <Check size={14} strokeWidth={3} />
-                </span>
-                {d}
-              </motion.li>
-            ))}
-          </ul>
-          <LinkButton to="/contact" className="btn btn--primary">
-            Get a drywall quote
-          </LinkButton>
-        </Reveal>
-
-        <Reveal variants={slideRight} className="spotlight__visual">
-          <div className="wall">
-            <motion.div
-              className="wall__panel wall__panel--1"
-              initial={{ rotate: -6, y: 30 }}
-              whileInView={{ rotate: -3, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease }}
-            >
-              <span>Before</span>
-              <svg viewBox="0 0 120 80" aria-hidden="true">
-                <path
-                  d="M10 10 L35 30 L28 44 L58 60 L50 78"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="94" cy="34" r="9" fill="none" stroke="currentColor" strokeWidth="2.5" />
-              </svg>
-              <small>Cracks &amp; punctures</small>
-            </motion.div>
-            <motion.div
-              className="wall__panel wall__panel--2"
-              initial={{ rotate: 6, y: 40 }}
-              whileInView={{ rotate: 3, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.15, ease }}
-            >
-              <span>After</span>
-              <PaintRoller size={52} strokeWidth={1.6} />
-              <small>Smooth, paint-ready</small>
-            </motion.div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-function ServiceGrid() {
-  const [filter, setFilter] = useState("All");
-  const list = filter === "All" ? services : services.filter((s) => s.category === filter);
-
-  return (
-    <section className="section section--cream-2">
-      <div className="container">
-        <SectionHeading
-          eyebrow="All services"
-          title="Whatever the job, we've got it"
-          text="Filter by type to see what we do."
-        />
-
-        <LayoutGroup>
-          <div className="filters" role="tablist" aria-label="Filter services">
-            {serviceFilters.map((f) => (
-              <button
-                key={f}
-                role="tab"
-                aria-selected={filter === f}
-                className={`filters__btn ${filter === f ? "is-active" : ""}`}
-                onClick={() => setFilter(f)}
-              >
-                {filter === f && (
-                  <motion.span
-                    layoutId="filter-pill"
-                    className="filters__pill"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span>{f}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid--2">
-            <AnimatePresence mode="popLayout">
-              {list.map((s) => (
-                <motion.article
-                  key={s.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.35, ease }}
-                  whileHover={{ y: -6 }}
-                  className="card service-wide"
-                >
-                  <span className="icon-box">
-                    <s.icon size={28} />
-                  </span>
-                  <div>
-                    <span className="tag tag--soft">{s.category}</span>
-                    <h3>{s.title}</h3>
-                    <p>{s.blurb}</p>
-                    <ul className="mini-list">
-                      {s.points.map((p) => (
-                        <li key={p}>
-                          <Check size={15} strokeWidth={3} /> {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </motion.article>
-              ))}
-            </AnimatePresence>
-          </div>
-        </LayoutGroup>
-      </div>
-    </section>
-  );
-}
-
-function Faq() {
-  const [open, setOpen] = useState(0);
-  return (
-    <section className="section">
-      <div className="container container--narrow">
-        <SectionHeading eyebrow="FAQ" title="Questions we hear a lot" />
-        <Stagger className="faq" stagger={0.08}>
-          {faqs.map((f, i) => {
-            const isOpen = open === i;
-            return (
-              <Item key={f.q} className={`faq__item ${isOpen ? "is-open" : ""}`}>
-                <button
-                  className="faq__q"
-                  aria-expanded={isOpen}
-                  onClick={() => setOpen(isOpen ? -1 : i)}
-                >
-                  <span>{f.q}</span>
-                  <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                    <ChevronDown size={22} />
-                  </motion.span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      key="a"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.32, ease }}
-                      className="faq__a"
-                    >
-                      <p>{f.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </Item>
-            );
-          })}
+    <section className="section section--sand">
+      <div className="container know">
+        <div className="know__intro">
+          <Headline as="h2" className="display display--lg" text="Before you *book.*" inView />
+          <Reveal as="p" className="lead">
+            A little detail up front means fewer surprises on the day.
+          </Reveal>
+        </div>
+        <Stagger className="know__list" stagger={0.1}>
+          {know.map((k) => (
+            <Item key={k.title} className="know__item">
+              <h3>{k.title}</h3>
+              <p>{k.text}</p>
+            </Item>
+          ))}
         </Stagger>
       </div>
     </section>
@@ -210,15 +158,13 @@ export default function Services() {
   return (
     <>
       <PageHeader
-        crumb="Services"
-        eyebrow="Our services"
-        title="Repairs, remodels & a spotless finish."
-        text="Drywall, ceilings, remodeling, pressure washing and cleaning — handled by one prompt, professional team."
+        label="Services"
+        title="Pick the clean your home *needs.*"
+        text="Five services, each described plainly. Not sure which one fits? Call and we'll help you choose."
       />
-      <DrywallSpotlight />
-      <ServiceGrid />
-      <Faq />
-      <CtaBand title="Got a project in mind?" />
+      <Picker />
+      <GoodToKnow />
+      <CtaBand />
     </>
   );
 }

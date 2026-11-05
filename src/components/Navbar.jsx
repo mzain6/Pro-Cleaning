@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import Logo from "./Logo.jsx";
 import { ease } from "./motion.jsx";
 import { navLinks, site } from "../data/content.js";
@@ -12,7 +12,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const { pathname } = useLocation();
 
-  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 16));
 
   // close the drawer on navigation
   useEffect(() => setOpen(false), [pathname]);
@@ -29,14 +29,14 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className={`nav ${solid ? "nav--solid" : ""}`}
-      initial={{ y: -90 }}
-      animate={{ y: 0 }}
+      className={`nav ${solid ? "nav--solid" : ""} ${open ? "nav--open" : ""}`}
+      initial={{ transform: "translateY(-80px)", opacity: 0 }}
+      animate={{ transform: "translateY(0px)", opacity: 1 }}
       transition={{ duration: 0.7, ease }}
     >
       <div className="container nav__inner">
-        <Link to="/" className="nav__brand" aria-label="Pro-Cleaning & Handyman Services — home">
-          <Logo light={!solid} size={44} />
+        <Link to="/" className="nav__brand" aria-label="Whoa Cleaning Services, home">
+          <Logo light={open} size={42} />
         </Link>
 
         <nav className="nav__links" aria-label="Main">
@@ -44,14 +44,14 @@ export default function Navbar() {
             <NavLink key={l.to} to={l.to} end={l.to === "/"} className="nav__link">
               {({ isActive }) => (
                 <>
+                  <span>{l.label}</span>
                   {isActive && (
                     <motion.span
-                      layoutId="nav-pill"
-                      className="nav__pill"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      layoutId="nav-underline"
+                      className="nav__underline"
+                      transition={{ type: "spring", stiffness: 420, damping: 36 }}
                     />
                   )}
-                  <span className="nav__label">{l.label}</span>
                 </>
               )}
             </NavLink>
@@ -59,33 +59,17 @@ export default function Navbar() {
         </nav>
 
         <div className="nav__actions">
-          <motion.a
-            href={site.phoneHref}
-            className="btn btn--primary btn--sm nav__call"
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <a href={site.phoneHref} className="btn btn--gold btn--sm nav__call">
             <Phone size={16} />
             {site.phone}
-          </motion.a>
+          </a>
           <button
             className="nav__burger"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={open ? "x" : "m"}
-                initial={{ rotate: -90, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                exit={{ rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                style={{ display: "inline-flex" }}
-              >
-                {open ? <X size={26} /> : <Menu size={26} />}
-              </motion.span>
-            </AnimatePresence>
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
@@ -94,21 +78,24 @@ export default function Navbar() {
         {open && (
           <motion.div
             className="drawer"
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.25, ease }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
           >
             <motion.ul
               className="drawer__list"
               initial="hidden"
               animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.12 } } }}
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } } }}
             >
               {navLinks.map((l) => (
                 <motion.li
                   key={l.to}
-                  variants={{ hidden: { opacity: 0, x: -24 }, show: { opacity: 1, x: 0 } }}
+                  variants={{
+                    hidden: { opacity: 0, transform: "translateY(16px)" },
+                    show: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.45, ease } },
+                  }}
                 >
                   <NavLink
                     to={l.to}
@@ -120,15 +107,16 @@ export default function Navbar() {
                 </motion.li>
               ))}
               <motion.li
-                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
                 className="drawer__cta"
+                variants={{
+                  hidden: { opacity: 0, transform: "translateY(16px)" },
+                  show: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.45, ease } },
+                }}
               >
-                <a href={site.phoneHref} className="btn btn--primary btn--lg btn--block">
+                <a href={site.phoneHref} className="btn btn--gold btn--lg btn--block">
                   <Phone size={20} /> Call {site.phone}
                 </a>
-                <p>
-                  {site.street}, {site.cityLine}
-                </p>
+                <p>{site.hours}</p>
               </motion.li>
             </motion.ul>
           </motion.div>

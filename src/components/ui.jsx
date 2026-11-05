@@ -1,146 +1,106 @@
+import { useId } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Star, Phone, ArrowRight } from "lucide-react";
-import { Float, Reveal, SplitText, ease } from "./motion.jsx";
+import { ArrowRight, Phone } from "lucide-react";
+import { Headline, Reveal, rise } from "./motion.jsx";
+import { Sparkle } from "./Logo.jsx";
 import { site } from "../data/content.js";
 
-export function Stars({ size = 18, count = 5 }) {
+/** Small section label with the brand sparkle. */
+export function Label({ children, light = false }) {
   return (
-    <span className="stars" aria-label={`${count} out of 5 stars`}>
-      {Array.from({ length: count }).map((_, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, scale: 0, rotate: -45 }}
-          whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.08 * i, type: "spring", stiffness: 260, damping: 14 }}
-          style={{ display: "inline-flex" }}
-        >
-          <Star size={size} fill="currentColor" strokeWidth={0} />
-        </motion.span>
-      ))}
+    <span className={`label ${light ? "label--light" : ""}`}>
+      <Sparkle size={13} />
+      {children}
     </span>
   );
 }
 
-export function SectionHeading({ eyebrow, title, text, align = "center", light = false }) {
+/** Star rating that fills partially (4.7 shows 4 full stars and 70% of the fifth). */
+export function StarRating({ value = 5, size = 18 }) {
+  const uid = useId().replace(/:/g, "");
   return (
-    <Reveal className={`heading heading--${align} ${light ? "heading--light" : ""}`}>
-      {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-      <h2 className="h2">{title}</h2>
-      {text && <p className="lead">{text}</p>}
-    </Reveal>
+    <span className="stars" role="img" aria-label={`${value} out of 5 stars`}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const fill = Math.max(0, Math.min(1, value - i));
+        return (
+          <svg key={i} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+            <defs>
+              <linearGradient id={`${uid}-${i}`}>
+                <stop offset={fill} stopColor="currentColor" />
+                <stop offset={fill} stopColor="currentColor" stopOpacity="0.22" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"
+              fill={`url(#${uid}-${i})`}
+            />
+          </svg>
+        );
+      })}
+    </span>
   );
 }
 
-/** Dark banner at the top of every inner page. */
-export function PageHeader({ eyebrow, title, text, crumb }) {
+export function CallButton({ variant = "gold", children, className = "" }) {
   return (
-    <section className="page-header">
-      <div className="page-header__bg" aria-hidden="true">
-        <Float className="blob blob--gold" x={40} y={20} duration={14} />
-        <Float className="blob blob--teal" x={-30} y={-25} duration={16} />
-      </div>
-      <div className="container page-header__inner">
-        <motion.nav
-          className="crumbs"
-          aria-label="Breadcrumb"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease }}
-        >
-          <Link to="/">Home</Link>
-          <span>/</span>
-          <span aria-current="page">{crumb}</span>
-        </motion.nav>
-        {eyebrow && (
-          <motion.span
-            className="eyebrow eyebrow--light"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease }}
-          >
-            {eyebrow}
-          </motion.span>
-        )}
-        <SplitText text={title} className="h1 page-header__title" delay={0.15} highlight={2} />
+    <a href={site.phoneHref} className={`btn btn--${variant} ${className}`}>
+      <Phone size={18} />
+      {children ?? site.phone}
+    </a>
+  );
+}
+
+export function LinkButton({ to, children, variant = "gold", arrow = true, className = "" }) {
+  return (
+    <Link to={to} className={`btn btn--${variant} ${className}`}>
+      {children}
+      {arrow && <ArrowRight size={18} className="btn__arrow" />}
+    </Link>
+  );
+}
+
+/** Heading block at the top of every inner page. */
+export function PageHeader({ label, title, text }) {
+  return (
+    <header className="page-head">
+      <Sparkle size={420} className="page-head__spark" />
+      <div className="container page-head__inner">
+        <motion.div {...rise(0, 10, 0.5)}>
+          <Label>{label}</Label>
+        </motion.div>
+        <Headline as="h1" className="display display--xl page-head__title" text={title} delay={0.1} />
         {text && (
-          <motion.p
-            className="page-header__text"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45, ease }}
-          >
+          <motion.p className="lead page-head__text" {...rise(0.4, 14, 0.6)}>
             {text}
           </motion.p>
         )}
       </div>
-      <Wave />
-    </section>
+    </header>
   );
 }
 
-export function Wave({ fill = "var(--cream)" }) {
+/** Closing band at the bottom of pages: the phone number, big. */
+export function CtaBand({ title = "Let's make your house say *whoa.*", text }) {
   return (
-    <svg className="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 40 C 240 90, 480 0, 720 30 S 1200 80, 1440 25 V80 H0 Z" fill={fill} />
-    </svg>
-  );
-}
-
-export function CallButton({ className = "btn btn--primary", children }) {
-  return (
-    <motion.a
-      href={site.phoneHref}
-      className={className}
-      whileHover={{ y: -3 }}
-      whileTap={{ scale: 0.96 }}
-    >
-      <Phone size={18} />
-      {children ?? site.phone}
-    </motion.a>
-  );
-}
-
-export function LinkButton({ to, children, className = "btn btn--ghost", icon = true }) {
-  return (
-    <motion.span style={{ display: "inline-flex" }} whileHover={{ y: -3 }} whileTap={{ scale: 0.96 }}>
-      <Link to={to} className={className}>
-        {children}
-        {icon && <ArrowRight size={18} />}
-      </Link>
-    </motion.span>
-  );
-}
-
-/** Call-to-action band used at the bottom of pages. */
-export function CtaBand({ title = "Ready to fix it, fresh it, finish it?", text }) {
-  return (
-    <section className="cta-band">
-      <div className="container">
-        <Reveal className="cta-band__card">
-          <motion.span
-            className="cta-band__glow"
-            aria-hidden="true"
-            animate={{
-              transform: ["scale(1)", "scale(1.25)", "scale(1)"],
-              opacity: [0.5, 0.85, 0.5],
-            }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <div className="cta-band__copy">
-            <h2 className="h2">{title}</h2>
-            <p>
-              {text ??
-                "Call now or send us the details — we'll get back to you quickly with a clear plan."}
-            </p>
-          </div>
-          <div className="cta-band__actions">
-            <CallButton />
-            <LinkButton to="/contact" className="btn btn--outline-light">
-              Request a Quote
-            </LinkButton>
-          </div>
+    <section className="cta">
+      <div className="container cta__grid">
+        <div className="cta__copy">
+          <Headline as="h2" className="display display--lg" text={title} inView />
+          <Reveal as="p" className="cta__text">
+            {text ?? "Call or text and tell us what you need. We'll talk it through and find a time."}
+          </Reveal>
+        </div>
+        <Reveal className="cta__action" delay={0.1}>
+          <a href={site.phoneHref} className="cta__phone">
+            {site.phone}
+          </a>
+          <p className="cta__meta">
+            Call or text · {site.hours}
+          </p>
+          <LinkButton to="/contact" variant="line-light">
+            Request a quote
+          </LinkButton>
         </Reveal>
       </div>
     </section>

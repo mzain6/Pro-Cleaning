@@ -1,26 +1,29 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Clock, Copy, MapPin, MessageCircle, Navigation, Phone, Send } from "lucide-react";
-import { PageHeader, SectionHeading } from "../components/ui.jsx";
-import { Item, Reveal, Stagger, ease, slideLeft, slideRight } from "../components/motion.jsx";
-import { services, site } from "../data/content.js";
+import { Check, Clock, Copy, MessageSquare, Phone, Send } from "lucide-react";
+import { CtaBand, Label, PageHeader } from "../components/ui.jsx";
+import { Reveal, ease, slideLeft, slideRight } from "../components/motion.jsx";
+import { services, site, toTell } from "../data/content.js";
 
-const serviceOptions = [...services.map((s) => s.title), "Something else"];
-
-const empty = { name: "", phone: "", service: serviceOptions[0], city: site.areas[0], message: "" };
+const serviceOptions = [...services.map((s) => s.title), "Not sure yet"];
 
 function buildMessage(f) {
   return (
-    `Hi Pro-Cleaning & Handyman, I'd like a quote.\n` +
+    `Hi Whoa Cleaning, I'd like a quote.\n` +
     `Name: ${f.name}\n` +
     `Phone: ${f.phone}\n` +
     `Service: ${f.service}\n` +
-    `City: ${f.city}\n` +
+    `When: ${f.when || "(flexible)"}\n` +
     `Details: ${f.message || "(none)"}`
   );
 }
 
 function QuoteForm() {
+  const [params] = useSearchParams();
+  const preset = services.find((s) => s.id === params.get("service"))?.title;
+  const empty = { name: "", phone: "", service: preset ?? serviceOptions[0], when: "", message: "" };
+
   const [form, setForm] = useState(empty);
   const [status, setStatus] = useState("idle"); // idle | sending | sent | prepared | error
   const [copied, setCopied] = useState(false);
@@ -31,7 +34,7 @@ function QuoteForm() {
   async function onSubmit(e) {
     e.preventDefault();
 
-    // If an email-forwarding endpoint is configured in data/content.js, deliver there.
+    // If an email-forwarding endpoint is set in data/content.js, deliver there.
     if (site.formEndpoint) {
       setStatus("sending");
       try {
@@ -47,7 +50,7 @@ function QuoteForm() {
       return;
     }
 
-    // Otherwise prepare the message so the customer can text or call us in one tap.
+    // Otherwise prepare the message so the customer can text or call in one tap.
     setStatus("prepared");
   }
 
@@ -57,7 +60,7 @@ function QuoteForm() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     } catch {
-      /* clipboard unavailable — ignore */
+      /* clipboard unavailable: ignore */
     }
   }
 
@@ -72,45 +75,34 @@ function QuoteForm() {
         {status === "sent" || status === "prepared" ? (
           <motion.div
             key="done"
-            className="form-done"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.35, ease }}
+            className="done"
+            initial={{ opacity: 0, transform: "translateY(12px)" }}
+            animate={{ opacity: 1, transform: "translateY(0px)" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease }}
           >
-            <motion.span
-              className="form-done__icon"
-              initial={{ scale: 0, rotate: -90 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 12, delay: 0.15 }}
-            >
-              <Check size={34} strokeWidth={3} />
-            </motion.span>
+            <span className="done__icon">
+              <Check size={28} strokeWidth={2.5} />
+            </span>
 
             {status === "sent" ? (
               <>
-                <h3>Thanks, {form.name.split(" ")[0] || "friend"}!</h3>
+                <h2 className="display display--md">Thanks, {form.name.split(" ")[0] || "friend"}.</h2>
                 <p>We got your request and will get back to you shortly.</p>
               </>
             ) : (
               <>
-                <h3>Your request is ready</h3>
-                <p>
-                  Send it to us as a text, or call and tell us about the job. Either way we'll take
-                  it from there.
-                </p>
-                <pre className="form-done__msg">{message}</pre>
-                <div className="form-done__actions">
-                  <a
-                    className="btn btn--primary"
-                    href={`sms:${site.smsNumber}?body=${encodeURIComponent(message)}`}
-                  >
-                    <MessageCircle size={18} /> Send as text
+                <h2 className="display display--md">Your message is ready.</h2>
+                <p>Send it to us as a text, or call and tell us about the job. Either way we'll take it from there.</p>
+                <pre className="done__msg">{message}</pre>
+                <div className="done__actions">
+                  <a className="btn btn--gold" href={`${site.smsHref}?&body=${encodeURIComponent(message)}`}>
+                    <MessageSquare size={18} /> Send as text
                   </a>
                   <a className="btn btn--dark" href={site.phoneHref}>
                     <Phone size={18} /> Call us
                   </a>
-                  <button type="button" className="btn btn--ghost-dark" onClick={copy}>
+                  <button type="button" className="btn btn--line" onClick={copy}>
                     {copied ? <Check size={18} /> : <Copy size={18} />} {copied ? "Copied" : "Copy"}
                   </button>
                 </div>
@@ -126,12 +118,11 @@ function QuoteForm() {
             onSubmit={onSubmit}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            noValidate={false}
           >
-            <h2 className="h3">Request a quote</h2>
-            <p className="form__intro">Tell us about the job — we'll reply with next steps.</p>
+            <h2 className="display display--md">Request a quote</h2>
+            <p className="form__intro">Tell us about the job and we'll reply with next steps.</p>
 
             <div className="form__row">
               <label>
@@ -145,7 +136,7 @@ function QuoteForm() {
                   type="tel"
                   value={form.phone}
                   onChange={set("phone")}
-                  placeholder="(717) 555-0123"
+                  placeholder="(484) 555-0123"
                   autoComplete="tel"
                 />
               </label>
@@ -153,7 +144,7 @@ function QuoteForm() {
 
             <div className="form__row">
               <label>
-                <span>Service needed</span>
+                <span>Service</span>
                 <select value={form.service} onChange={set("service")}>
                   {serviceOptions.map((s) => (
                     <option key={s}>{s}</option>
@@ -161,23 +152,18 @@ function QuoteForm() {
                 </select>
               </label>
               <label>
-                <span>Your city</span>
-                <select value={form.city} onChange={set("city")}>
-                  {site.areas.map((a) => (
-                    <option key={a}>{a}</option>
-                  ))}
-                  <option>Other</option>
-                </select>
+                <span>When would suit you?</span>
+                <input value={form.when} onChange={set("when")} placeholder="A date or time frame" />
               </label>
             </div>
 
             <label>
-              <span>Project details</span>
+              <span>Details</span>
               <textarea
                 rows={5}
                 value={form.message}
                 onChange={set("message")}
-                placeholder="Tell us what needs fixing, cleaning or building…"
+                placeholder="Bedrooms, bathrooms, pets, anything we should know…"
               />
             </label>
 
@@ -187,15 +173,9 @@ function QuoteForm() {
               </p>
             )}
 
-            <motion.button
-              type="submit"
-              className="btn btn--primary btn--lg btn--block"
-              disabled={status === "sending"}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.97 }}
-            >
+            <button type="submit" className="btn btn--gold btn--lg btn--block" disabled={status === "sending"}>
               {status === "sending" ? "Sending…" : "Send request"} <Send size={18} />
-            </motion.button>
+            </button>
           </motion.form>
         )}
       </AnimatePresence>
@@ -203,49 +183,35 @@ function QuoteForm() {
   );
 }
 
-function InfoCards() {
-  const cards = [
-    {
-      icon: Phone,
-      title: "Call us",
-      body: <a href={site.phoneHref}>{site.phone}</a>,
-      note: "Fastest way to reach us",
-    },
-    {
-      icon: MapPin,
-      title: "Visit us",
-      body: (
-        <a href={site.directionsUrl} target="_blank" rel="noreferrer">
-          {site.street}, {site.cityLine}
-        </a>
-      ),
-      note: "Tap for directions",
-    },
-    {
-      icon: Clock,
-      title: "Hours",
-      body: <span>{site.hours}</span>,
-      note: "Call to confirm availability",
-    },
-  ];
-
+function Details() {
   return (
-    <Stagger className="info-cards" stagger={0.12}>
-      {cards.map((c) => (
-        <Item key={c.title}>
-          <motion.div className="info-card" whileHover={{ x: 6 }}>
-            <span className="icon-box">
-              <c.icon size={22} />
-            </span>
-            <div>
-              <h3>{c.title}</h3>
-              <p>{c.body}</p>
-              <small>{c.note}</small>
-            </div>
-          </motion.div>
-        </Item>
-      ))}
-    </Stagger>
+    <div className="reach">
+      <Label>Fastest way</Label>
+      <a href={site.phoneHref} className="reach__phone">
+        {site.phone}
+      </a>
+      <p className="reach__line">
+        <Clock size={16} /> {site.hours}. Call to confirm today's availability.
+      </p>
+      <div className="reach__actions">
+        <a href={site.phoneHref} className="btn btn--gold">
+          <Phone size={18} /> Call
+        </a>
+        <a href={site.smsHref} className="btn btn--line">
+          <MessageSquare size={18} /> Text
+        </a>
+      </div>
+
+      <h3 className="reach__sub">It helps to tell us</h3>
+      <ul className="ticks ticks--plain">
+        {toTell.map((t) => (
+          <li key={t}>
+            <span className="dot" aria-hidden="true" />
+            {t}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -253,62 +219,21 @@ export default function Contact() {
   return (
     <>
       <PageHeader
-        crumb="Contact"
-        eyebrow="Get in touch"
-        title="Let's talk about your project."
-        text="Call, text or send us the details. We keep you updated every step of the way."
+        label="Contact"
+        title="Let's talk about your *house.*"
+        text="Call or text is quickest. If you'd rather write it down, fill in the form and we'll prepare a message for you to send."
       />
-
-      <section className="section">
+      <section className="section contact-section">
         <div className="container contact">
-          <Reveal variants={slideLeft} className="contact__side">
-            <InfoCards />
-            <div className="areas-box">
-              <h3>We serve</h3>
-              <div className="areas-box__tags">
-                {site.areas.map((a) => (
-                  <span className="tag" key={a}>
-                    {a}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <Reveal variants={slideLeft}>
+            <Details />
           </Reveal>
-
-          <Reveal variants={slideRight} className="contact__main">
+          <Reveal variants={slideRight}>
             <QuoteForm />
           </Reveal>
         </div>
       </section>
-
-      <section className="section section--cream-2 map-section">
-        <div className="container">
-          <SectionHeading
-            eyebrow="Find us"
-            title="Based on Laurel Street, Lancaster"
-            text={`${site.street}, ${site.cityLine}`}
-          />
-          <Reveal className="map">
-            <iframe
-              title="Map showing Pro-Cleaning & Handyman Services LLC in Lancaster, PA"
-              src={site.mapEmbedUrl}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-            <motion.a
-              href={site.directionsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn--primary map__btn"
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.96 }}
-            >
-              <Navigation size={18} /> Get directions
-            </motion.a>
-          </Reveal>
-        </div>
-      </section>
+      <CtaBand title="Prefer to just *call?*" text="We'll talk through what you need and find a time that works." />
     </>
   );
 }

@@ -1,127 +1,77 @@
-import { motion } from "framer-motion";
-import { ExternalLink, Quote, Star } from "lucide-react";
-import { Counter, Item, Reveal, Stagger, popIn } from "../components/motion.jsx";
-import { CtaBand, PageHeader, SectionHeading, Stars } from "../components/ui.jsx";
-import { quickQuotes, reviewTopics, reviews, site } from "../data/content.js";
+import { ExternalLink } from "lucide-react";
+import { Counter, Headline, Item, Reveal, Stagger } from "../components/motion.jsx";
+import { CtaBand, Label, PageHeader, StarRating } from "../components/ui.jsx";
+import { reviewTopics, reviews, site } from "../data/content.js";
 
 function Summary() {
-  const max = Math.max(...reviewTopics.map((t) => t.count));
   return (
-    <section className="section">
+    <section className="section summary-section">
       <div className="container summary">
         <Reveal className="summary__score">
           <div className="summary__big">
             <Counter to={site.rating} decimals={1} />
           </div>
-          <Stars size={26} />
+          <StarRating value={site.rating} size={26} />
           <p>
-            Based on <b>{site.reviewCount}</b> Google reviews
+            from <b>{site.reviewCount}</b> Google reviews
           </p>
-          <motion.a
-            href={site.mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn--primary"
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            See us on Google <ExternalLink size={16} />
-          </motion.a>
         </Reveal>
 
-        <Reveal className="summary__topics">
-          <h2 className="h3">What customers mention most</h2>
-          <ul>
-            {reviewTopics.map((t, i) => (
+        <Reveal className="summary__side" delay={0.1}>
+          <Label>Mentioned most</Label>
+          <ul className="chips">
+            {reviewTopics.map((t) => (
               <li key={t.label}>
-                <span>{t.label}</span>
-                <div className="bar">
-                  <motion.i
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${(t.count / max) * 100}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.1 * i, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                </div>
-                <b>{t.count}</b>
+                {t.label} <b>{t.count}</b>
               </li>
             ))}
           </ul>
+          <p className="summary__note">
+            Topics Google picked out of the reviews. The profile lists six more.
+          </p>
+          <div className="summary__actions">
+            <a href={site.profileUrl} target="_blank" rel="noreferrer" className="btn btn--dark">
+              Read them on Google <ExternalLink size={16} />
+            </a>
+            <a href={site.profileUrl} target="_blank" rel="noreferrer" className="btn btn--line">
+              Write a review
+            </a>
+          </div>
         </Reveal>
       </div>
     </section>
   );
 }
 
-function ReviewCards() {
+function ReviewList() {
   return (
-    <section className="section section--cream-2">
+    <section className="section section--sand">
       <div className="container">
-        <SectionHeading
-          eyebrow="Real customer reviews"
-          title="What people say about working with us"
-          text="Pulled from our public Google reviews — including our replies."
-        />
-        <Stagger className="reviews" stagger={0.14}>
-          {reviews.map((r) => (
-            <Item key={r.name}>
-              <motion.article className="review" whileHover={{ y: -6 }}>
-                <Quote className="review__q" size={44} />
-                <header className="review__head">
-                  <span className="avatar">{r.name.charAt(0)}</span>
-                  <div>
-                    <strong>{r.name}</strong>
-                    <small>{r.meta}</small>
-                  </div>
-                  <Stars size={15} />
-                </header>
-                <p className="review__text">{r.text}</p>
-                <div className="review__reply">
-                  <b>Response from the owner</b>
-                  <p>{r.reply}</p>
-                </div>
-              </motion.article>
-            </Item>
-          ))}
-        </Stagger>
-      </div>
-    </section>
-  );
-}
-
-function QuickQuotes() {
-  return (
-    <section className="section">
-      <div className="container">
-        <SectionHeading eyebrow="In a nutshell" title="More kind words" />
-        <Stagger className="grid grid--3" stagger={0.12}>
-          {quickQuotes.map((q) => (
-            <Item key={q.text} variants={popIn}>
-              <motion.figure className="quote-tile" whileHover={{ y: -6, rotate: -0.6 }}>
-                <span className="stars stars--gold">
-                  <Star size={16} fill="currentColor" strokeWidth={0} />
-                  <Star size={16} fill="currentColor" strokeWidth={0} />
-                  <Star size={16} fill="currentColor" strokeWidth={0} />
-                  <Star size={16} fill="currentColor" strokeWidth={0} />
-                  <Star size={16} fill="currentColor" strokeWidth={0} />
+        <div className="head">
+          <Label>In their words</Label>
+          <Headline as="h2" className="display display--lg" text="Three customers, *quoted.*" inView />
+        </div>
+        <Stagger className="quotes" stagger={0.14}>
+          {reviews.map((r, i) => (
+            <Item as="article" key={r.name} className={`quote ${i === 0 ? "quote--lead" : ""}`}>
+              <span className="quote__mark" aria-hidden="true">
+                “
+              </span>
+              <blockquote className="quote__pull">{r.pull}</blockquote>
+              <p className="quote__text">{r.text}</p>
+              <footer className="quote__who">
+                <StarRating value={5} size={16} />
+                <span>
+                  <b>{r.name}</b> · {r.meta}
                 </span>
-                <blockquote>"{q.text}"</blockquote>
-                <figcaption>— {q.name}</figcaption>
-              </motion.figure>
+              </footer>
             </Item>
           ))}
         </Stagger>
-        <Reveal className="center mt-lg">
-          <motion.a
-            href={site.mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn--dark"
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.96 }}
-          >
+        <Reveal className="center quotes__more">
+          <a href={site.profileUrl} target="_blank" rel="noreferrer" className="btn btn--dark">
             Read all {site.reviewCount} reviews on Google <ExternalLink size={16} />
-          </motion.a>
+          </a>
         </Reveal>
       </div>
     </section>
@@ -132,15 +82,13 @@ export default function Reviews() {
   return (
     <>
       <PageHeader
-        crumb="Reviews"
-        eyebrow="Customer reviews"
-        title="Five stars, one review at a time."
-        text="Our reputation is built on showing up, communicating and doing great work."
+        label="Reviews"
+        title="What customers *say.*"
+        text="4.7 stars across 27 Google reviews. Here are a few, in their own words."
       />
       <Summary />
-      <ReviewCards />
-      <QuickQuotes />
-      <CtaBand title="Join our list of happy customers." />
+      <ReviewList />
+      <CtaBand />
     </>
   );
 }

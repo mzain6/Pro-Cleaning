@@ -1,70 +1,43 @@
 import { motion } from "framer-motion";
-import { Heart, MapPin, Sparkles, Wrench } from "lucide-react";
-import { LogoMark } from "../components/Logo.jsx";
-import { CtaBand, PageHeader, SectionHeading, Stars } from "../components/ui.jsx";
-import {
-  Counter,
-  Float,
-  Item,
-  Reveal,
-  Spin,
-  Stagger,
-  popIn,
-  slideLeft,
-  slideRight,
-} from "../components/motion.jsx";
-import { process, services, site, values } from "../data/content.js";
+import { CtaBand, Label, PageHeader } from "../components/ui.jsx";
+import { Headline, Item, Reveal, Stagger, ease, slideLeft, slideRight } from "../components/motion.jsx";
+import { reviewTopics, site, values } from "../data/content.js";
 
-function Story() {
+const jobs = [
+  "Cleaning to prepare a rental for a new tenant",
+  "A deep clean of a 93-year-old's home",
+  "More jobs after that",
+];
+
+function Range() {
   return (
     <section className="section">
-      <div className="container split">
-        <Reveal variants={slideLeft} className="split__visual">
-          <div className="about-art">
-            <Spin className="about-art__ring" duration={50} />
-            <Float className="about-art__card" y={-10} duration={6}>
-              <LogoMark size={110} animated />
-              <strong>Pro-Cleaning</strong>
-              <span>&amp; Handyman Services LLC</span>
-            </Float>
-            <div className="about-art__slot about-art__slot--a">
-              <Float className="about-art__chip" y={-8} duration={5}>
-                <Wrench size={16} /> Repairs
-              </Float>
-            </div>
-            <div className="about-art__slot about-art__slot--b">
-              <Float className="about-art__chip" y={8} duration={6}>
-                <Sparkles size={16} /> Cleaning
-              </Float>
-            </div>
-          </div>
+      <div className="container range">
+        <Reveal variants={slideLeft} className="range__big">
+          <span className="range__year">2021</span>
+          <p>Tara Moore's Google review says we've worked with her since then.</p>
         </Reveal>
 
-        <Reveal variants={slideRight} className="split__copy">
-          <span className="eyebrow">Our story</span>
-          <h2 className="h2">A local team that treats your home like its own.</h2>
+        <Reveal variants={slideRight} className="range__copy">
+          <Label>Different jobs, same standard</Label>
+          <Headline
+            as="h2"
+            className="display display--lg"
+            text="Customers don't book us just once."
+            inView
+          />
           <p className="lead">
-            Pro-Cleaning &amp; Handyman Services LLC is a Latino-owned business on Laurel Street
-            in Lancaster, Pennsylvania. We built our name on two things: doing the job properly,
-            and leaving the space cleaner than we found it.
+            The jobs vary. Tara Moore's review mentions a few of them:
           </p>
-          <p>
-            Whether it's a ceiling leak that can't wait, a wall that needs to be smooth and paint
-            ready, a pressure-washing refresh or a remodel, customers tell us the same things —
-            we're <b>prompt</b>, we <b>communicate</b>, and the work looks <b>great</b>. We're proud
-            to serve Lancaster, York, Lititz, Ephrata, Millersville and Columbia.
-          </p>
-          <div className="about-badges">
-            <span className="badge badge--gold">
-              <Heart size={14} fill="currentColor" /> Latino-owned
-            </span>
-            <span className="badge">
-              <MapPin size={14} /> Lancaster, PA
-            </span>
-            <span className="badge">
-              <Stars size={13} /> {site.rating.toFixed(1)} on Google
-            </span>
-          </div>
+          <ol className="range__list">
+            {jobs.map((j, i) => (
+              <li key={j}>
+                <span>{i + 1}</span>
+                {j}
+              </li>
+            ))}
+          </ol>
+          <p className="range__credit">From Tara Moore's Google review.</p>
         </Reveal>
       </div>
     </section>
@@ -73,27 +46,18 @@ function Story() {
 
 function Values() {
   return (
-    <section className="section section--cream-2">
+    <section className="section section--sand">
       <div className="container">
-        <SectionHeading
-          eyebrow="What we stand for"
-          title="Three promises behind every job"
-          text="They're simple, and we hold ourselves to them."
-        />
-        <Stagger className="grid grid--3" stagger={0.12}>
+        <div className="head">
+          <Label>How we work</Label>
+          <Headline as="h2" className="display display--lg" text="Three habits customers notice." inView />
+        </div>
+        <Stagger className="values" stagger={0.12}>
           {values.map((v, i) => (
-            <Item key={v.title}>
-              <motion.div
-                className="card value-card"
-                whileHover={{ y: -8, rotate: i === 1 ? 0 : i === 0 ? -1 : 1 }}
-              >
-                <span className="value-card__num">0{i + 1}</span>
-                <span className="icon-box">
-                  <v.icon size={26} />
-                </span>
-                <h3>{v.title}</h3>
-                <p>{v.text}</p>
-              </motion.div>
+            <Item key={v.title} className="value">
+              <span className="value__n">0{i + 1}</span>
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
             </Item>
           ))}
         </Stagger>
@@ -102,67 +66,53 @@ function Values() {
   );
 }
 
-function ByTheNumbers() {
+function Owners() {
   return (
-    <section className="section section--dark numbers">
-      <div className="why__bg" aria-hidden="true" />
-      <div className="container">
-        <Stagger className="stats__grid stats__grid--dark" stagger={0.12}>
-          <Item variants={popIn} className="stat">
-            <strong>
-              <Counter to={5} decimals={1} />
-            </strong>
-            <span>Google rating</span>
-          </Item>
-          <Item variants={popIn} className="stat">
-            <strong>
-              <Counter to={site.reviewCount} />
-            </strong>
-            <span>Customer reviews</span>
-          </Item>
-          <Item variants={popIn} className="stat">
-            <strong>
-              <Counter to={site.areas.length} />
-            </strong>
-            <span>Cities served</span>
-          </Item>
-          <Item variants={popIn} className="stat">
-            <strong>
-              <Counter to={services.length} />
-            </strong>
-            <span>Core services</span>
-          </Item>
-        </Stagger>
+    <section className="owners">
+      <div className="container owners__grid">
+        <Headline
+          as="h2"
+          className="display display--xl owners__title"
+          text="Black-owned. *Women-owned.*"
+          inView
+        />
+        <Reveal as="p" className="owners__text" delay={0.15}>
+          That's who's behind {site.name}. Customers mention the team by name in their reviews.
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function Timeline() {
+function Topics() {
+  const max = Math.max(...reviewTopics.map((t) => t.count));
   return (
     <section className="section">
-      <div className="container container--narrow">
-        <SectionHeading eyebrow="How we work" title="From first call to final clean-up" />
-        <div className="timeline">
-          <motion.span
-            className="timeline__line"
-            initial={{ scaleY: 0 }}
-            whileInView={{ scaleY: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1.4, ease: "easeInOut" }}
-          />
-          {process.map((p, i) => (
-            <Reveal key={p.title} className="timeline__item" variants={i % 2 ? slideRight : slideLeft}>
-              <span className="timeline__dot">
-                <p.icon size={18} />
-              </span>
-              <div>
-                <h3>{p.title}</h3>
-                <p>{p.text}</p>
-              </div>
-            </Reveal>
-          ))}
+      <div className="container topics">
+        <div className="topics__intro">
+          <Label>In customers' words</Label>
+          <Headline as="h2" className="display display--lg" text="What reviewers bring up." inView />
+          <Reveal as="p" className="lead">
+            Google picks out the topics that come up most in reviews. The number is how many reviews
+            mention each one.
+          </Reveal>
         </div>
+        <ul className="bars">
+          {reviewTopics.map((t, i) => (
+            <li key={t.label}>
+              <span className="bars__label">{t.label}</span>
+              <span className="bars__track">
+                <motion.i
+                  initial={{ transform: "scaleX(0)" }}
+                  whileInView={{ transform: `scaleX(${t.count / max})` }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 1, delay: 0.12 * i, ease }}
+                />
+              </span>
+              <b>{t.count}</b>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -172,16 +122,15 @@ export default function About() {
   return (
     <>
       <PageHeader
-        crumb="About"
-        eyebrow="About us"
-        title="Local, reliable and proud of the work."
-        text="Meet the team behind Lancaster's repair, remodel and clean-up crew."
+        label="About"
+        title="People who *notice* the details."
+        text="Whoa Cleaning Services LLC is a Black-owned, women-owned house cleaning company. Here's what customers say we're like to work with."
       />
-      <Story />
+      <Range />
       <Values />
-      <ByTheNumbers />
-      <Timeline />
-      <CtaBand title="Let's take care of your home." />
+      <Owners />
+      <Topics />
+      <CtaBand title="Ready for a clean you *notice?*" />
     </>
   );
 }

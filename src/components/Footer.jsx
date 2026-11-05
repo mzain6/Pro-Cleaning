@@ -1,85 +1,71 @@
 import { Link } from "react-router-dom";
-import { Phone, MapPin, Clock, Heart } from "lucide-react";
+import { MessageSquare, Phone } from "lucide-react";
 import Logo from "./Logo.jsx";
-import { Stagger, Item } from "./motion.jsx";
 import { navLinks, services, site } from "../data/content.js";
 
 export default function Footer() {
   return (
     <footer className="footer">
-      <div className="container">
-        <Stagger className="footer__grid" stagger={0.12}>
-          <Item className="footer__about">
-            <Logo light size={52} />
-            <p>
-              Reliable handyman, drywall, remodeling, pressure washing and cleaning services for
-              homes across Lancaster County and beyond.
-            </p>
-            <span className="badge badge--gold">
-              <Heart size={14} fill="currentColor" /> Latino-owned local business
-            </span>
-          </Item>
-
-          <Item>
-            <h3 className="footer__title">Explore</h3>
-            <ul className="footer__list">
-              {navLinks.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to}>{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </Item>
-
-          <Item>
-            <h3 className="footer__title">Services</h3>
-            <ul className="footer__list">
-              {services.map((s) => (
-                <li key={s.id}>
-                  <Link to="/services">{s.title}</Link>
-                </li>
-              ))}
-            </ul>
-          </Item>
-
-          <Item>
-            <h3 className="footer__title">Get in touch</h3>
-            <ul className="footer__contact">
-              <li>
-                <Phone size={18} />
-                <a href={site.phoneHref}>{site.phone}</a>
-              </li>
-              <li>
-                <MapPin size={18} />
-                <a href={site.directionsUrl} target="_blank" rel="noreferrer">
-                  {site.street}
-                  <br />
-                  {site.cityLine}
-                </a>
-              </li>
-              <li>
-                <Clock size={18} />
-                <span>{site.hours}</span>
-              </li>
-            </ul>
-          </Item>
-        </Stagger>
-
-        <div className="footer__areas">
-          <span>Serving:</span>
-          {site.areas.map((a) => (
-            <span className="tag" key={a}>
-              {a}
-            </span>
-          ))}
-        </div>
-
-        <div className="footer__bottom">
+      <div className="container footer__grid">
+        <div className="footer__brand">
+          <Logo light size={46} />
           <p>
-            © {new Date().getFullYear()} {site.name}. All rights reserved.
+            House cleaning for people who want it done on time and done properly. {site.identity.join(" and ")}.
           </p>
-          <p>Lancaster, Pennsylvania</p>
         </div>
+
+        <nav aria-label="Footer">
+          <h3 className="footer__title">Pages</h3>
+          <ul className="footer__list">
+            {navLinks.map((l) => (
+              <li key={l.to}>
+                <Link to={l.to}>{l.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div>
+          <h3 className="footer__title">Cleaning</h3>
+          <ul className="footer__list">
+            {services.map((s) => (
+              <li key={s.id}>
+                <Link to={`/services#${s.id}`}>{s.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="footer__title">Get in touch</h3>
+          <a href={site.phoneHref} className="footer__phone">
+            {site.phone}
+          </a>
+          <ul className="footer__list footer__list--tight">
+            <li>
+              <a href={site.smsHref}>
+                <MessageSquare size={15} /> Text us
+              </a>
+            </li>
+            <li>
+              <a href={site.phoneHref}>
+                <Phone size={15} /> Call us
+              </a>
+            </li>
+            <li className="footer__hours">{site.hours}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="container footer__base">
+        <p>
+          © {new Date().getFullYear()} {site.name}
+        </p>
+        <p>
+          <a href={site.profileUrl} target="_blank" rel="noreferrer">
+            Find us on Google
+          </a>
+        </p>
       </div>
     </footer>
   );

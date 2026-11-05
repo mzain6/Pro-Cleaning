@@ -12,7 +12,7 @@ function Root({ splash }) {
   const [appReady, setAppReady] = useState(!splash);
 
   // The site mounts *while* the curtain is lifting, so its entrance
-  // animations play as the splash slides away.
+  // animations play as the loading scene wipes away.
   const reveal = () => {
     markSplashSeen();
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -42,10 +42,10 @@ function mount(splash) {
 }
 
 if (shouldShowSplash()) {
-  // The splash itself covers the font-loading wait.
+  // The loading scene itself covers the font-loading wait.
   mount(true);
 } else {
-  // Returning visitor: no splash, but still wait (briefly) for the web fonts so the
+  // Returning visitor: no loading scene, but still wait (briefly) for the web fonts so the
   // headline reveal doesn't reflow mid-animation. Never wait more than 1.2s.
   Promise.race([loadFonts(), wait(1200)]).then(() => mount(false));
 }
